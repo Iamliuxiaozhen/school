@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
-
+$dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=$charset";
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, 
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,       
