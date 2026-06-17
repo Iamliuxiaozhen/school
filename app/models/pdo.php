@@ -10,5 +10,5 @@ $options = [
 try {
     $pdo = new PDO($dsn, $username, $password, $options);
 } catch (PDOException $e) {
-    die("数据库连接失败: " . $e->getMessage());
+    die("数据库连接失败: " );
 }

@@ -14,11 +14,14 @@
 
         </div>
 
-        <div class="top-extra">
-
-            <a href="#">书记信箱</a> ｜ <a href="#">校长信箱</a> ｜ <a href="#">English</a>
-
-        </div>
+    <div class="top-extra">
+        <a href="#">书记信箱</a> ｜ <a href="#">校长信箱</a> ｜ 
+            <?php if (isset($_COOKIE['lang']) && $_COOKIE['lang'] === 'en'): ?>
+                <a href="?lang=zh-CN&csrf_token=<?php echo csrf_token(); ?>">简体中文</a>
+            <?php else: ?>
+                <a href="?lang=en&csrf_token=<?php echo csrf_token(); ?>">English</a>
+            <?php endif; ?>
+    </div>
 
     </div>
 

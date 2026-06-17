@@ -3,9 +3,10 @@
 //Copyright (c) 2025-2026 Shaanxi Jima Cloud Education Innovation Studio
 //website:extreme-code.cn
 //数据库配置修改位于:根目录/config/database.php
-
+//坏菜了！！！！这个代码我自己都看不懂！！！！不要瞎改！！！！！
 //加载信息
 //没设计容错，别tm乱删文件
+//天知道那些文件啥地方引用了！！！！！！！！！
 //A1变量部分 //数据库config
 require __DIR__ . '/../app/models/title.php';
 require __DIR__ . '/../app/models/keywords.php';
@@ -15,9 +16,12 @@ require __DIR__ . '/../app/models/ico.php';
 require __DIR__ . '/../app/models/icp.php';
 require __DIR__ . '/../app/models/address.php';
 require __DIR__ . '/../app/models/postal_code.php';
+//防护加载
+require __DIR__ . '/../app/models/csrf.php';//CSRF防护
+// //b1语言包加载
+// require_once __DIR__ . '/public/lib/language/zh-CN.php';//zh-CN语言包
+// require_once __DIR__ . '/public/lib/language/en.php';//en语言包
 
-//b1语言包加载
-require_once __DIR__ . '/public/lib/language/zh-CN.php';//zh-CN语言包
 function e($str)
 {
     return htmlspecialchars((string)$str, ENT_QUOTES, 'UTF-8');
@@ -41,7 +45,55 @@ require_once __DIR__ . '/../app/models/meiti_list_q4.php';//q4
 /*门户*/
 require_once __DIR__ . '/../app/models/portal_cards.php';
 
-$lang = 'zh-CN';//默认
+
+
+
+//lang
+$allowed_languages = ['zh-CN', 'en'];
+$cookie_options = [
+    'expires'  => time() + 30 * 86400,          // 30 天
+    'path'     => '/',
+    'secure'   => isset($_SERVER['HTTPS']),     // 仅 HTTPS 下发送（生产环境建议强制开启）
+    'httponly' => true,                         // 禁止 JS 读取，防 XSS
+    'samesite' => 'Lax'                         // 防 CSRF
+];
+
+if (isset($_GET['lang']) && in_array($_GET['lang'], $allowed_languages, true)) {
+    // CSRF 验证
+    if (!csrf_verify()) {
+        die('CSRF token 验证失败，请刷新页面后重试。');
+    }
+
+    setcookie('lang', $_GET['lang'], $cookie_options);
+
+    $redirect_url = strtok($_SERVER['REQUEST_URI'], '?');
+    if ($redirect_url === false || $redirect_url === '') {
+        $redirect_url = '/';
+    }
+    header('Location: ' . $redirect_url);
+    exit;
+}
+
+// --- 4. 读取当前语言 ---
+if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], $allowed_languages, true)) {
+    $lang = $_COOKIE['lang'];
+} else {
+    $lang = 'zh-CN';
+    setcookie('lang', $lang, $cookie_options);
+}
+
+
+
+
+if (isset($_COOKIE['lang'])) {
+    $lang = $_COOKIE['lang'];
+    
+    if ($lang === 'en') {
+        require_once __DIR__ . '/public/lib/language/en.php';
+    } elseif ($lang === 'zh-CN') {
+        require_once __DIR__ . '/public/lib/language/zh-CN.php';
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -51,7 +103,7 @@ $lang = 'zh-CN';//默认
 
 <meta charset="UTF-8">
 
-<title><?php echo e($title); ?> - 首页</title>
+<title><?php echo e($title); ?> - <?php echo e($index_title); ?></title>
 
 <meta name="keywords" content="<?php echo e($keywords); ?>">
 
@@ -66,7 +118,9 @@ $lang = 'zh-CN';//默认
 <body>
 
 <!-- 顶部栏 -->
+
 <?php require_once __DIR__ . '/public/lib/head.php'; ?>
+
 <!-- 轮番图Banner -->
 
 <div class="banner">
@@ -121,9 +175,9 @@ $lang = 'zh-CN';//默认
 
             <h2 class="section-title">
 
-                校园要闻
+                <?php echo e($school_new); ?>
 
-                <a href="#" class="more">更多&gt;</a>
+                <a href="#" class="more"><?php echo e($more); ?>&gt;</a>
 
             </h2>
 
@@ -165,9 +219,9 @@ $lang = 'zh-CN';//默认
 
             <h2 class="section-title">
 
-                综合新闻
+                <?php echo e($zh_new); ?>
 
-                <a href="#" class="more">更多&gt;</a>
+                <a href="#" class="more"><?php echo e($more); ?>&gt;</a>
 
             </h2>
 
@@ -207,9 +261,9 @@ $lang = 'zh-CN';//默认
 
             <h2 class="section-title">
 
-                学术交流
+                <?php echo e($academic_exchange); ?>
 
-                <a href="#" class="more">更多&gt;</a>
+                <a href="#" class="more"><?php echo e($more); ?>&gt;</a>
 
             </h2>
 
@@ -242,10 +296,10 @@ $lang = 'zh-CN';//默认
         <div class="info-col">
 
             <h2 class="section-title">
+                    <!-- 媒体关注 -->
+                <?php echo e($media_attention); ?>
 
-                媒体关注
-
-                <a href="#" class="more">更多&gt;</a>
+                <a href="#" class="more"><?php echo e($more); ?>&gt;</a>
 
             </h2>
 

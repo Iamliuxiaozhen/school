@@ -1,1 +1,2 @@
 .dockermysql/
+config/database.php
